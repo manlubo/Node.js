@@ -63,10 +63,18 @@ const urlMap = {
 
 
 ### [express 프레임워크]
+> ESM 방식 사용 - package.json 추가.
+> ```json
+> "type": "module"
+> ```
 - 간단한 익스프레스 서버 구현
 - 라우터 코드를 express로 리팩토링
 ```javascript
+// commonjs 방식(이전방식)
 const express = require("express");
+// ESM 방식(최근) - 이제부터는 해당 방식으로 사용할 것임.
+import express from 'express';
+
 const app = express();
 
 // _은 사용하지 않는 변수를 구조상 넣을때 사용하는 방식
@@ -76,9 +84,12 @@ app.get("/feed", feed);
 
 // 호이스팅을 위해 function으로 변경
 function user(req, res) {
-  const user = url.parse(req.url, true).query;
-  // json으로 변경(charset=utf-8 자동설정)
-  res.json(`[user] name : ${user.name}, age: ${user.age}`);
+  // ESM에서는 new URL 클래스 사용 + searchParams 활용
+  const myUrl = new URL(req.url, `http://${req.headers.host}`);
+  const name = myUrl.searchParams.get("name");
+  const age = myUrl.searchParams.get("age");
+
+  res.json(`[user] name : ${name}, age: ${age}`);
 }
 ```
 - 게시판 api 코드 작성 (GET, POST, DELETE)

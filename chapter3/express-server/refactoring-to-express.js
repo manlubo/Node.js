@@ -1,5 +1,5 @@
-const url = require("url");
-const express = require("express");
+import express from 'express';
+
 const app = express();
 const port = 3000;
 
@@ -12,8 +12,11 @@ app.get("/user", user);
 app.get("/feed", feed);
 
 function user(req, res) {
-  const user = url.parse(req.url, true).query;
-  res.json(`[user] name : ${user.name}, age: ${user.age}`);
+  const myUrl = new URL(req.url, `http://${req.headers.host}`);
+  const name = myUrl.searchParams.get("name");
+  const age = myUrl.searchParams.get("age");
+
+  res.json(`[user] name : ${name}, age: ${age}`);
 }
 
 function feed(req, res) {

@@ -1,4 +1,5 @@
-const express = require('express');
+import express from "express";
+
 const app = express();
 // 게시글 리스트로 사용할 posts에 빈 리스트 할당
 let posts = [];
