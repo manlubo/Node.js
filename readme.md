@@ -334,3 +334,60 @@ yarn run
 # bin 패키지 실행
 yarn <패키지 명령어>
 ```
+
+## [chapter5]
+- 콜백 함수 사용
+```javascript
+function register(user) {
+  return saveDB(user, function (user) {
+    return sendEmail(user, function (user) {
+      return getResult(user);
+    });
+  })
+}
+```
+- Promise 객체 사용
+```javascript
+function goodPromise(val) {
+  return new Promise((resolve, reject) => {
+    // resolve : 성공 시, reject: 실패 시
+    resolve(val);
+  });
+}
+
+goodPromise("세상에")
+  .then((val) => {
+    return val + " 이런";
+  })
+  .then((val) => {
+    return val + " 코드는";
+  })
+  .then((val) => {
+    return val + " 없습니다.";
+  })
+  .then((val) => {
+    console.log(val);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+```
+- async & await 사용
+```javascript
+function waitOneSecond(msg) {
+  return new Promise((resolve, _) => {
+    setTimeout(() => resolve(`${msg}`), 1000);
+  });
+}
+
+// async 함수 안에서 await은 해당 비동기 작업이 끝날 때까지 다음 코드 실행을 멈춤
+async function countOneToTen() {
+  for (let x of [...Array(10).keys()]) { // 0 ~ 9까지의 루프를 순회
+    let result = await waitOneSecond(`${x + 1}초 대기중...`);
+    console.log(result);
+  }
+  console.log("완료");
+}
+
+countOneToTen();
+```
