@@ -1,0 +1,9 @@
+{
+  "name": "test-yarn",
+  "packageManager": "yarn@4.6.0",
+  "private": true,
+  "dependencies": {
+    "chalk": "https://github.com/manlubo/chalk"
+  },
+  "type": "module"
+}

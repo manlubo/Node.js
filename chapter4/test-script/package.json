@@ -1,0 +1,14 @@
+{
+  "name": "test-script",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "prehello": "echo 'pre'",
+    "hello": "echo 'hello Node.js'",
+    "posthello": "echo 'post'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
