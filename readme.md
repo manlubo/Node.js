@@ -391,3 +391,159 @@ async function countOneToTen() {
 
 countOneToTen();
 ```
+---
+## [chapter6]
+- 몽고DB 가입
+- 의존성 설치
+```bash
+# 몽고DB 의존성
+npm i mongodb
+# .env 의존성
+npm i dotenv
+```
+- DB연결
+```javascript
+import { MongoClient, ServerApiVersion} from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// 아이디, 비밀번호, 클러스터 정보는 .env 파일로 관리(같은 패키지에 생성)
+const uri = `mongodb+srv://${process.env.DB_ID}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/myFirstDatabase?retryWrites=true&w=majority`;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  await client.connect();
+  const adminDB = client.db("test").admin();
+  const listDatabases = await adminDB.listDatabases();
+  console.log(listDatabases);
+  return "OK";
+}
+
+run()
+  .then(console.log)
+  .catch(console.error)
+  .finally(() => client.close());
+```
+- 간단한 CRUD 제작
+```javascript
+// 몽고 클라이언트 모듈 추가
+import { MongoClient } from 'mongodb';
+
+// 몽고 클라이언트 생성
+const client = new MongoClient(url);
+
+// await 사용을 위해 async 함수 사용
+async function main() {
+  try {
+    // 커넥션 생성 및 연결 시도
+    await client.connect();
+    console.log("MongoDB 접속 성공");
+
+    // test 데이터베이스의 person 컬렉션 가져오기
+    const collection = client.db('test').collection('person');
+
+    // 문서 하나 추가
+    await collection.insertOne({name: 'manlubo', age: 30});
+    console.log("문서 추가 완료");
+
+    // 문서 찾기
+    const documents = await collection.find({name: 'manlubo'}).toArray();
+    console.log('찾은 문서: ', documents);
+
+    // 문서 갱신하기
+    await collection.updateOne({name: 'manlubo'}, {$set: {age: 31}});
+    console.log('문서 업데이트');
+
+    // 갱신된 문서 확인하기
+    const updatedDocuments = await collection.find({name: 'manlubo'}).toArray();
+    console.log('갱신된 문서: ', updatedDocuments);
+
+    // 문서 삭제하기
+    await collection.deleteOne({name: 'manlubo'});
+    console.log('문서 삭제')
+
+    // 연결 끊기
+    await client.close();
+  } catch (err) {
+    console.log(err);
+  }
+}
+```
+
+- MongoDB 연산자
+
+  | 연산자        | 설명                                               |
+  |---------------|----------------------------------------------------|
+  | $set          | 도큐먼트의 속성값을 변경할 때 사용                  |
+  | $unset        | 도큐먼트의 속성을 삭제할 때 사용                    |
+  | $rename       | 도큐먼트 속성의 이름을 변경할 때 사용                |
+  | $inc          | 필드의 값을 증가시킬 때 사용                        |
+  | $mul          | 필드의 값에 곱하기를 할 때 사용                     |
+  | $min          | 지정한 값과 현잿값 중 작은 값을 선택                 |
+  | $max          | 지정한 값과 현잿값 중 큰 값을 선택                   |
+  | $currentDate  | 현재 날짜와 시간을 필드에 업데이트                   |
+  | $addToSet     | 배열 필드에 값이 없는 경우 추가                      |
+  | $pop          | 배열 필드에서 첫 번째 혹은 마지막 값을 삭제           |
+  | $pull         | 배열 필드에서 조건에 맞는 모든 값을 삭제              |
+  | $push         | 배열 필드의 끝에 값 추가                             |
+  | $each         | 여러 개의 값을 한 번에 배열 필드에 추가               |
+
+- [MongoDB compass 다운로드하기](https://www.mongodb.com/try/download/compass)
+
+- 몽구스 설치
+```bash
+ npm i mongoose
+```
+- 몽구스로 스키마 만들기
+```javascript
+import mongoose, {Schema} from "mongoose";
+
+// 스키마 객체 생성
+const personSchema = new Schema({
+  name: String,
+  age: Number,
+  email: { type: String, required: true },
+});
+
+// 모델 객체 생성
+export default mongoose.model("Person", personSchema);
+```
+- 스키마 선언 타입 
+ 
+ | 타입       | 설명                   |
+  |------------|----------------------|
+  | String     | 문자열                  |
+  | Number     | 숫자                   |
+  | Date       | 날짜                   |
+  | Buffer     | 버퍼                   |
+  | Boolean    | 불린 값                 |
+  | Mixed      | 임의 타입 (아무 값이나 저장 가능) |
+  | ObjectId   | 고유한 식별자              |
+  | Array      | 배열은 []로 선언           |
+  | Decimal128 | 고정 소수점(128비트)        |
+  | Map        | 자바스크립트 Map의 하위 클래스   |
+
+- 스키마 추가 속성
+
+  | 속성       | 타입                  | 설명                                           |
+  |------------|-----------------------|----------------------------------------------|
+  | required   | Boolean / Function    | 필수 여부 지정 (true면 값이 없을 경우 ValidationError 발생) |
+  | default    | Any / Function        | 기본값 지정 (값이 없을 때 자동 할당)                       |
+  | select     | Boolean               | 쿼리 시 기본으로 선택할지 여부 (false면 기본적으로 조회 제외)       |
+  | validate   | Function / Object     | 사용자 정의 유효성 검사 함수 지정                          |
+  | get        | Function              | 값 조회 시 호출되는 Getter 함수                        |
+  | set        | Function              | 값 저장 시 호출되는 Setter 함수                        |
+  | alias      | String                | 필드에 대한 가상 별칭 지정 (다른 이름으로 접근 가능)              |
+  | immutable  | Boolean / Function    | true면 한 번 값이 설정되면 변경 불가                      |
+  | transform  | Function              | toJSON / toObject 변환 시 필드값 변환용 함수            |
+  | index      | Boolean / Object      | 인덱스 생성 여부 (true 또는 상세 옵션 가능)                 |
+  | unique     | Boolean               | 고유 값 여부 (DB 레벨에서 unique 인덱스 생성)              |
+  | sparse     | Boolean               | 희소 인덱스 생성 여부 (null/undefined 값은 인덱스에서 제외)    |
