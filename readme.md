@@ -533,7 +533,7 @@ export default mongoose.model("Person", personSchema);
 
 - 스키마 추가 속성
 
-  | 속성       | 타입                  | 설명                                           |
+| 속성       | 타입                  | 설명                                           |
   |------------|-----------------------|----------------------------------------------|
   | required   | Boolean / Function    | 필수 여부 지정 (true면 값이 없을 경우 ValidationError 발생) |
   | default    | Any / Function        | 기본값 지정 (값이 없을 때 자동 할당)                       |
