@@ -1,0 +1,27 @@
+<h1>[{{title}}] 글 작성</h1>
+
+<div>
+  <form method="POST" action="/write" name="boardForm">
+    <div>
+      <label>제목</label>
+      <input type="text" name="title" placeholder="제목">
+    </div>
+    <div>
+      <label>작성자</label>
+      <input type="text" name="writer" placeholder="작성자">
+    </div>
+    <div>
+      <label>비밀번호</label>
+      <input type="password" name="password" placeholder="비밀번호">
+    </div>
+    <div>
+      <label>본문</label>
+      <textarea rows="10" cols="50" name="content" placeholder="내용을 입력해주세요."></textarea>
+    </div>
+    <br/>
+    <div>
+      <button type="submit">저장</button>
+      <button type="button" onclick="location.href='/'">취소</button>
+    </div>
+  </form>
+</div>

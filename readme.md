@@ -547,3 +547,67 @@ export default mongoose.model("Person", personSchema);
   | index      | Boolean / Object      | 인덱스 생성 여부 (true 또는 상세 옵션 가능)                 |
   | unique     | Boolean               | 고유 값 여부 (DB 레벨에서 unique 인덱스 생성)              |
   | sparse     | Boolean               | 희소 인덱스 생성 여부 (null/undefined 값은 인덱스에서 제외)    |
+
+---
+
+## [chapter7]
+- express + express-handlebars + MongoDB (mvc패턴 적용)
+```bash
+# 머스태치 같은 템플릿 엔진
+npm i express-handlebars
+```
+```javascript
+//app.js
+import express from 'express';
+import {engine} from "express-handlebars";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+
+// 템플릿 엔진으로 핸들바 등록
+app.engine('handlebars', engine());
+// 웹피이지 로드 시 사용할 템플릿 엔진 설정
+app.set('view engine', 'handlebars');
+// 뷰 디렉토리를 views로 설정
+app.set('views', __dirname + '/views');
+
+app.get("/", (req, res) => {
+  res.render("home", {title: "안녕하세요", message: "만나서 반갑습니다!"});
+});
+
+app.listen(3000);
+```
+```html
+<!-- views/layouts/main.handlebars -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판 프로젝트</title>
+</head>
+<body>
+<!--중괄호 3개로 감싸야함-->
+  {{{ body }}}
+</body>
+</html>
+```
+```html
+<!-- views/home.handlebars -->
+<h2>{{title}}</h2>
+<p>{{message}}</p>
+```
+- 저장시 서버 자동 재시작 설정 [nodemon]
+```bash
+npm i nodemon 
+```
+```json
+// package.json
+"scripts": {
+"test": "echo \"Error: no test specified\" && exit 1",
+"start": "npx nodemon app.js" // npx로 자동 재시작 설정 가능
+},
+```

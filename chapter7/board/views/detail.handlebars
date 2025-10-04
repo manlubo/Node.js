@@ -1,0 +1,91 @@
+<h1>{{title}}</h1>
+{{#with post}}
+<h2 class="text-xl">{{title}}</h2>
+
+<div>
+  작성자 : <b>{{writer}}</b>
+</div>
+<div>
+  조회수 : {{hits}} | 작성일시 : {{dateString regDate}}
+  <button onclick="modifyPost()">수정</button>
+  <button onclick="deletePost()">삭제</button>
+</div>
+
+<div>
+  <pre>{{content}}</pre>
+</div>
+
+<section>
+  <div>
+    <h3>3개의 댓글이 있습니다.</h3>
+  </div>
+
+  <form method="POST" action="/write-comment">
+    <div>
+      <div>
+        <input type="text" name="name" placeholder="이름"/>
+        <input type="password" name="password" placeholder="비밀번호"/>
+      </div>
+      <div>
+        <textarea name="comment" rows="3" cols="40" placeholder="댓글을 입력해주세요."></textarea>
+        <br/>
+        <br/>
+        <button>댓글 쓰기</button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<section>
+  <div>
+    <div>
+      작성자 : <b>댓글 작성자</b>
+    </div>
+    <div>
+      작성일시 : 2022-01-01 00:00:00
+      <button onclick="deleteComment('1')">삭제</button>
+    </div>
+  </div>
+  <div>
+    <pre>{{comment}}</pre>
+  </div>
+</section>
+{{/with}}
+
+<footer>
+  <div>
+    <a href="/">목록으로</a>
+  </div>
+</footer>
+<script>
+  const postOption = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+  }
+
+  async function modifyPost() {
+    const password = prompt("비밀번호를 입력해주세요");
+    if(!password || !password.trim()){
+      return;
+    }
+
+    const result = await fetch("/check-password", {
+      ...postOption,
+      body: JSON.stringify({id: "{{post._id}}", password})
+    });
+
+    const data = await result.json();
+
+    if (data.isExist){
+      document.location = "/modify/{{post._id}}"
+    } else {
+      alert("비밀번호가 올바르지 않습니다.");
+    }
+  }
+
+  async function deletePost() {
+
+  }
+</script>
