@@ -33,7 +33,7 @@ export async function list(collection, page, search) {
 }
 
 // 가져올 때, 제외할 데이터 정의
-const projectionOption = {
+export const projectionOption = {
   projection: {
     password: 0,
     "comments.password": 0,
@@ -65,4 +65,9 @@ export async function updatePost(collection, id, post) {
     }
   }
   return await collection.updateOne({_id: new ObjectId(id)}, toUpdatePost);
+}
+
+// 게시글 삭제
+export async function deleteOne(collection, {id, password}) {
+  return await collection.deleteOne({_id: new ObjectId(id), password: password});
 }
