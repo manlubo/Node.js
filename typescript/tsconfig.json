@@ -1,0 +1,57 @@
+{
+  // 📘 TypeScript 설정 파일 (tsconfig.json)
+  // 자세한 설명: https://aka.ms/tsconfig
+  "compilerOptions": {
+    // =============================
+    // 📁 File Layout (파일 구조)
+    // =============================
+    // "rootDir": "./src",   // TypeScript 소스 파일이 있는 폴더
+    // "outDir": "./dist",   // 컴파일된 JS 파일이 생성될 폴더
+
+    // =============================
+    // ⚙️ Environment Settings (환경 설정)
+    // =============================
+    "module": "nodenext",    // Node.js ES Module 방식을 사용 (import/export 지원)
+    "target": "esnext",      // 최신 ECMAScript 문법으로 컴파일 (거의 변환 없음)
+    "types": [],             // 전역 타입 정의를 비워둠 (명시적으로 필요한 경우만 추가)
+
+    // Node.js 프로젝트라면 아래처럼 설정하면 됨:
+    // "lib": ["esnext"],     // 최신 JS 기능을 사용하도록 라이브러리 세팅
+    // "types": ["node"],     // Node.js 전역 타입 추가
+    // (참고: npm install -D @types/node 필요)
+
+    // =============================
+    // 🧾 Other Outputs (출력 관련 설정)
+    // =============================
+    "sourceMap": true,         // .map 파일 생성 (디버깅 시 원본 TS 코드 표시)
+    "declaration": true,       // .d.ts 타입 선언 파일 생성
+    "declarationMap": true,    // 선언 파일에도 소스맵 생성
+
+    // =============================
+    // 🔒 Stricter Typechecking (엄격한 타입 검사)
+    // =============================
+    "noUncheckedIndexedAccess": true,    // 배열/객체 인덱스 접근 시 undefined 가능성 체크
+    "exactOptionalPropertyTypes": true,  // 선택적 프로퍼티의 타입을 정확히 처리 (예: string | undefined)
+
+    // =============================
+    // ✍️ Style Options (코드 스타일 관련)
+    // =============================
+    // "noImplicitReturns": true,          // 모든 코드 경로가 명시적 return을 가져야 함
+    // "noImplicitOverride": true,         // override 키워드가 명시된 메서드만 오버라이드 가능
+    // "noUnusedLocals": true,             // 사용하지 않는 지역 변수 있으면 에러
+    // "noUnusedParameters": true,         // 사용하지 않는 매개변수 있으면 에러
+    // "noFallthroughCasesInSwitch": true, // switch-case 문에서 break 빠뜨리면 에러
+    // "noPropertyAccessFromIndexSignature": true, // 인덱스 시그니처로 정의된 프로퍼티는 []로만 접근
+
+    // =============================
+    // 🌟 Recommended Options (추천 옵션)
+    // =============================
+    "strict": true,                      // 모든 타입 검사 규칙을 엄격 모드로
+    "jsx": "react-jsx",                  // React 17+ JSX 변환 방식 사용
+    "verbatimModuleSyntax": true,        // import/export 구문 그대로 유지 (자동 변환 방지)
+    "isolatedModules": true,             // 각 파일을 독립적으로 컴파일 가능하게 함 (Babel 호환용)
+    "noUncheckedSideEffectImports": true,// import한 모듈의 부수효과 체크
+    "moduleDetection": "force",          // ES 모듈 감지 방식 강제
+    "skipLibCheck": true,                // node_modules 내부 타입 검사 생략 (빌드 속도 향상)
+  }
+}

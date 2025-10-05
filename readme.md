@@ -611,3 +611,102 @@ npm i nodemon
 "start": "npx nodemon app.js" // npx로 자동 재시작 설정 가능
 },
 ```
+---
+
+## [chapter8]
+- NestJS
+> Node.js에서 실행하느 서버 사이드 프레임워크
+> 
+> 타입스크립트 지원
+> 
+> 바닐라 자바스크립트는 babel 사용 필수
+> 
+> HTTP요청은 추상화 코드 제공, 익스프레스와 패스티파이 사용 가능
+- 패스티파이
+> 익스프레스와 하피에 영감을 받은 웹 프레임워크
+> 
+> 로깅 비용이 크기에 pino를 로깅 라이브러리로 사용
+- NestJS  설치
+```bash
+# NestJS의 핵심 패키지 — 애플리케이션 라이프사이클, 의존성 주입(DI), 모듈 시스템 등을 제공
+npm i @nestjs/core 
+
+# NestJS의 공통 유틸 패키지 — 데코레이터(@Controller, @Injectable 등), 파이프, 가드, 인터셉터 등 제공
+npm i @nestjs/common 
+
+# Express 기반 플랫폼 어댑터 — Nest 앱이 Express 위에서 동작할 수 있게 해줌 (기본 HTTP 서버 역할)
+npm i @nestjs/platform-express 
+
+# TypeScript의 데코레이터 기능이 작동하도록 필요한 메타데이터 리플렉션 API
+# NestJS에서 의존성 주입, 데코레이터 분석 등에 사용됨
+npm i reflect-metadata 
+
+# TypeScript 컴파일러 — NestJS 프로젝트는 TS로 작성되기 때문에 필수
+npm i typescript
+```
+- 프로젝트 한번에 설치
+```bash
+# 1. Nest CLI 전역 설치
+#   -> 명령어로 Nest 프로젝트 생성, 빌드, 실행 등을 편하게 할 수 있음
+npm i -g @nestjs/cli
+
+# 2. 새 프로젝트 생성
+#   -> 디렉토리 자동 생성 + 기본 구조 + 위 패키지들 자동 설치
+nest new <프로젝트 명> 
+```
+
+## [typescript]
+- 설치 방법
+```bash
+# 전역 노드에 설치
+npm i -g typescript
+# ts를 컴파일 없이 실행할 수 있도록 해줌
+npm i -g ts-node
+
+# 설치 이후 버전 확인
+tsc --version
+
+# 프로젝트 폴더에 tsconfig.json 만들기
+tsc --init
+```
+- 지원하는 타입
+
+| 타입 | 설명 | 예시 코드 |
+  |------|------|------------|
+  | **number** | 숫자 타입 (정수, 실수 모두 포함) | `let age: number = 25;` |
+  | **string** | 문자열 타입 | `let name: string = "Sanghyun";` |
+  | **boolean** | 논리형 (참/거짓) | `let isActive: boolean = true;` |
+  | **bigint** | 큰 정수 타입 (ES2020 이후 지원) | `let big: bigint = 123n;` |
+  | **symbol** | 고유한 식별자 생성 시 사용 | `let key: symbol = Symbol("id");` |
+  | **null** | 값이 없음을 명시 | `let empty: null = null;` |
+  | **undefined** | 정의되지 않은 상태 | `let notDefined: undefined = undefined;` |
+  | **object** | 객체 타입 | `let user: object = { name: "Lee" };` |
+  | **array** | 배열 타입 | `let nums: number[] = [1, 2, 3];` 또는 `let nums: Array<number> = [1, 2, 3];` |
+  | **tuple** | 고정된 길이와 타입의 배열 | `let user: [string, number] = ["Lee", 30];` |
+  | **enum** | 열거형 (명시적 상수 집합) | `enum Role { ADMIN, USER }` |
+  | **any** | 모든 타입 허용 (타입 검사 비활성화) | `let value: any = "Hello";` |
+  | **unknown** | 타입을 미리 알 수 없는 값 (any보다 안전) | `let input: unknown = 10;` |
+  | **void** | 반환값이 없는 함수의 반환 타입 | `function log(): void { console.log("ok"); }` |
+  | **never** | 절대 발생하지 않는 타입 (에러나 무한루프 등) | `function error(): never { throw new Error(); }` |
+  | **union (|)** | 여러 타입 중 하나 | `let value: string \| number = "text";` |
+  | **intersection (&)** | 여러 타입을 모두 결합 | `type A = {x: number}; type B = {y: number}; type C = A & B;` |
+  | **literal** | 특정 값만 허용 | `let dir: "left" \| "right" = "left";` |
+  | **function** | 함수 타입 정의 | `let add: (a: number, b: number) => number;` |
+  | **type alias** | 타입에 이름 부여 | `type ID = string \| number;` |
+  | **interface** | 객체 구조 정의 | `interface User { name: string; age: number; }` |
+  | **class** | 클래스 정의 | `class Person { constructor(public name: string) {} }` |
+  | **generic** | 타입을 파라미터로 받는 구조 | `function identity<T>(value: T): T { return value; }` |
+- 변수에 타입을 지정하여 사용
+```typescript
+function add(a: number, b: number) {
+    return a + b;
+}
+```
+- 타입 alias(별칭) 주기
+```typescript
+type nsb = number | string | boolean;
+
+let value: nsb = 10;
+value = "hi";
+value = true;
+```
