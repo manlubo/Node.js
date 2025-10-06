@@ -671,31 +671,31 @@ tsc --init
 ```
 - 지원하는 타입
 
-| 타입 | 설명 | 예시 코드 |
-  |------|------|------------|
-  | **number** | 숫자 타입 (정수, 실수 모두 포함) | `let age: number = 25;` |
-  | **string** | 문자열 타입 | `let name: string = "Sanghyun";` |
-  | **boolean** | 논리형 (참/거짓) | `let isActive: boolean = true;` |
-  | **bigint** | 큰 정수 타입 (ES2020 이후 지원) | `let big: bigint = 123n;` |
-  | **symbol** | 고유한 식별자 생성 시 사용 | `let key: symbol = Symbol("id");` |
-  | **null** | 값이 없음을 명시 | `let empty: null = null;` |
-  | **undefined** | 정의되지 않은 상태 | `let notDefined: undefined = undefined;` |
-  | **object** | 객체 타입 | `let user: object = { name: "Lee" };` |
-  | **array** | 배열 타입 | `let nums: number[] = [1, 2, 3];` 또는 `let nums: Array<number> = [1, 2, 3];` |
-  | **tuple** | 고정된 길이와 타입의 배열 | `let user: [string, number] = ["Lee", 30];` |
-  | **enum** | 열거형 (명시적 상수 집합) | `enum Role { ADMIN, USER }` |
-  | **any** | 모든 타입 허용 (타입 검사 비활성화) | `let value: any = "Hello";` |
-  | **unknown** | 타입을 미리 알 수 없는 값 (any보다 안전) | `let input: unknown = 10;` |
-  | **void** | 반환값이 없는 함수의 반환 타입 | `function log(): void { console.log("ok"); }` |
-  | **never** | 절대 발생하지 않는 타입 (에러나 무한루프 등) | `function error(): never { throw new Error(); }` |
-  | **union (|)** | 여러 타입 중 하나 | `let value: string \| number = "text";` |
+| 타입                   | 설명 | 예시 코드 |
+  |----------------------|------|------------|
+  | **number**           | 숫자 타입 (정수, 실수 모두 포함) | `let age: number = 25;` |
+  | **string**           | 문자열 타입 | `let name: string = "Sanghyun";` |
+  | **boolean**          | 논리형 (참/거짓) | `let isActive: boolean = true;` |
+  | **bigint**           | 큰 정수 타입 (ES2020 이후 지원) | `let big: bigint = 123n;` |
+  | **symbol**           | 고유한 식별자 생성 시 사용 | `let key: symbol = Symbol("id");` |
+  | **null**             | 값이 없음을 명시 | `let empty: null = null;` |
+  | **undefined**        | 정의되지 않은 상태 | `let notDefined: undefined = undefined;` |
+  | **object**           | 객체 타입 | `let user: object = { name: "Lee" };` |
+  | **array**            | 배열 타입 | `let nums: number[] = [1, 2, 3];` 또는 `let nums: Array<number> = [1, 2, 3];` |
+  | **tuple**            | 고정된 길이와 타입의 배열 | `let user: [string, number] = ["Lee", 30];` |
+  | **enum**             | 열거형 (명시적 상수 집합) | `enum Role { ADMIN, USER }` |
+  | **any**              | 모든 타입 허용 (타입 검사 비활성화) | `let value: any = "Hello";` |
+  | **unknown**          | 타입을 미리 알 수 없는 값 (any보다 안전) | `let input: unknown = 10;` |
+  | **void**             | 반환값이 없는 함수의 반환 타입 | `function log(): void { console.log("ok"); }` |
+  | **never**            | 절대 발생하지 않는 타입 (에러나 무한루프 등) | `function error(): never { throw new Error(); }` |
+  | **union (\|)** | 여러 타입 중 하나 | `let value: string \| number = "text";` |
   | **intersection (&)** | 여러 타입을 모두 결합 | `type A = {x: number}; type B = {y: number}; type C = A & B;` |
-  | **literal** | 특정 값만 허용 | `let dir: "left" \| "right" = "left";` |
-  | **function** | 함수 타입 정의 | `let add: (a: number, b: number) => number;` |
-  | **type alias** | 타입에 이름 부여 | `type ID = string \| number;` |
-  | **interface** | 객체 구조 정의 | `interface User { name: string; age: number; }` |
-  | **class** | 클래스 정의 | `class Person { constructor(public name: string) {} }` |
-  | **generic** | 타입을 파라미터로 받는 구조 | `function identity<T>(value: T): T { return value; }` |
+  | **literal**          | 특정 값만 허용 | `let dir: "left" \| "right" = "left";` |
+  | **function**         | 함수 타입 정의 | `let add: (a: number, b: number) => number;` |
+  | **type alias**       | 타입에 이름 부여 | `type ID = string \| number;` |
+  | **interface**        | 객체 구조 정의 | `interface User { name: string; age: number; }` |
+  | **class**            | 클래스 정의 | `class Person { constructor(public name: string) {} }` |
+  | **generic**          | 타입을 파라미터로 받는 구조 | `function identity<T>(value: T): T { return value; }` |
 - 변수에 타입을 지정하여 사용
 ```typescript
 function add(a: number, b: number) {
@@ -709,4 +709,76 @@ type nsb = number | string | boolean;
 let value: nsb = 10;
 value = "hi";
 value = true;
+```
+- 함수에 타입지정
+```typescript
+function string(val: string) :string {
+  return val;
+}
+
+// 타입으로 지정
+type String = (val: string) => string;
+
+// 위와 동일 (함수의 속성 처리할 때 유용 ex. String2.version 등)
+type String2 = {
+  (val: string): string;
+}
+
+
+// const에 타입 지정 이후 > 해당타입으로 선언된 함수를 대입
+const stringFunction: String = string;  
+const stringFunction2: String2 = string;
+```
+- 인터페이스
+```typescript
+// 타입과 유사하게 사용 할 수 있음
+interface Book {
+  title: string;
+  price: number;
+  author: string;
+}
+
+let book: Book = {
+  title: "백엔드 개발자 되기",
+  price: 10000,
+  author: "박승규"
+}
+
+```
+- 클래스
+```typescript
+class Rectangle {
+  width: number;
+  height: number;
+
+  constructor(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+  }
+
+  getArea() {
+    return this.width * this.height;
+  }
+}
+
+const rectangle = new Rectangle(10, 5);
+```
+- 인터페이스를 클래스로 구현
+```typescript
+// 인터페이스
+interface IClicker {
+  count: number;
+  click(): number;
+}
+
+// 인터페이스를 구현한 클래스
+class Clicker implements IClicker {
+  count: number = 0;
+
+  click(): number {
+    this.count++;
+    console.log(`Click! [count] : ${this.count}`);
+    return this.count;
+  }
+}
 ```
