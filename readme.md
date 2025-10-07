@@ -782,3 +782,44 @@ class Clicker implements IClicker {
   }
 }
 ```
+- 타입스크립트에서는 접근 제어자 지원
+
+| 접근제어자  | 설명                                          |
+| ------ | ------------------------------------------- |
+|public  | 어디서든 접근 가능. 기본값이라 명시하지 않아도 동일하게 동작함.        |
+|protected | 같은 클래스와 자식 클래스 내부에서는 접근 가능하지만, 외부에서는 접근 불가. |
+| private | 선언된 클래스 내부에서만 접근 가능. 자식 클래스나 외부에서는 접근 불가.   |
+| #private | 실제 자바스크립트 런타임에서도 완전히 차단되는 진짜 비공개 필드.        |
+
+- 제네릭 타입 (any 대신 사용)
+```typescript
+function genericEcho<T>(message: T): T {
+  console.log(message);
+  return message;
+}
+```
+| 제네릭 문자 | 의미      | 설명                                      |
+| ------ | ------- | --------------------------------------- |
+| `T`    | Type    | 가장 일반적인 제네릭 타입 이름. 어떤 타입이든 올 수 있음을 의미함. |
+| `E`    | Element | 컬렉션, 배열 등의 요소(Element)를 나타낼 때 사용함.      |
+| `K`    | Key     | 객체나 Map의 키(Key) 타입을 나타낼 때 사용함.          |
+| `V`    | Value   | 객체나 Map의 값(Value) 타입을 나타낼 때 사용함.        |
+
+- 제네릭 인터페이스
+```typescript
+interface ILabel<T> {
+  label: T;
+}
+
+const stringLabel: ILabel<string> = {
+  label: "hello",
+}
+
+const numberLabel: ILabel<number> = {
+  label: 100,
+}
+
+const booleanLabel: ILabel<boolean> = {
+  label: false,
+}
+```
