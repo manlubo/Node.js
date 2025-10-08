@@ -654,7 +654,48 @@ npm i -g @nestjs/cli
 #   -> 디렉토리 자동 생성 + 기본 구조 + 위 패키지들 자동 설치
 nest new <프로젝트 명> 
 ```
+- NestJS 컨트롤러
+```typescript
+// src 폴더 하위에 생성
+import { Controller, Get } from '@nestjs/common';
 
+// 컨트롤러 데코레이터
+@Controller()
+export class HelloController { // 외부에서 사용하기 때문에 export 붙여줌
+  @Get()
+  hello() {
+    return '안녕하세요! NestJS로 만든 첫 애플리케이션입니다.';
+  }
+}
+```
+- 모듈 생성
+```typescript
+import { Module } from "@nestjs/common";
+import { HelloController } from "./hello.controller.js";
+
+// 모듈 데코레이터
+@Module({
+  controllers: [HelloController],
+})
+
+export class HelloModule {}
+```
+- 앱 실행 시키기
+```typescript
+import { NestFactory } from '@nestjs/core';
+import {HelloModule} from "./hello.module.js";
+
+// NestJS를 시작시키는 함수
+async function bootstrap() {
+  // NestFactory를 사용해서 NestApplication 객체 생성
+  const app = await NestFactory.create(HelloModule);
+
+  await app.listen(3000, () => console.log('서버 시작'));
+}
+
+bootstrap();
+```
+---
 ## [typescript]
 - 설치 방법
 ```bash
@@ -826,6 +867,7 @@ const booleanLabel: ILabel<boolean> = {
 - 데코레이터 (@ 데코레이터 명)
 ```json
 // tsconfig.json에 추가
-"experimentalDecorators": false,
-"useDefineForClassFields": true
+"experimentalDecorators": true,
+"useDefineForClassFields": true,
+"emitDecoratorMetadata": true
 ```
