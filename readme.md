@@ -823,3 +823,9 @@ const booleanLabel: ILabel<boolean> = {
   label: false,
 }
 ```
+- 데코레이터 (@ 데코레이터 명)
+```json
+// tsconfig.json에 추가
+"experimentalDecorators": false,
+"useDefineForClassFields": true
+```
