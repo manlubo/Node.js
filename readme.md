@@ -695,6 +695,57 @@ async function bootstrap() {
 
 bootstrap();
 ```
+
+- NestJS 네이밍 규칙
+```text
+1. 폴더명
+소문자 + - + 소문자
+user-profile
+
+2. 파일명
+<모듈명>.<역할>.ts
+hello.controller.ts
+
+3. 클래스명
+파스칼 케이스
+MemberController
+
+4. 변수 / 함수
+카멜케이스
+userService(), userName
+
+5. 상수
+대문자 + _
+He_LLO
+
+```
+- nest-cli 설치 (Nest 구조 잡아주는 라이브러리)
+```bash
+# nestjs-cli 설치
+npm i -g @nestjs/cli
+
+# 설치 이후 사용
+nest new <프로젝트 명>
+# 프로젝트 폴더로 이동
+cd <프로젝트 명>
+# 의존성 설치
+npm i
+# 서버 실행 - 개발환경은 start:dev
+npm run start
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
 ## [typescript]
 - 설치 방법
