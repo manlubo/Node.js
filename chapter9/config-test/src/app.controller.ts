@@ -18,4 +18,17 @@ export class AppController {
     console.log(url);
     return url;
   }
+
+  @Get('db-info')
+  getTest(): string{
+    console.log(this.configService.get('logLevel'));
+    console.log(this.configService.get('apiVersion'));
+    const dbInfo = this.configService.get('dbInfo');
+    return dbInfo;
+  }
+
+  @Get('redis-info')
+  getRedisInfo(): string {
+    return `${this.configService.get('redis.host')}:${this.configService.get('redis.port')}`;
+  }
 }

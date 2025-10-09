@@ -963,6 +963,53 @@ nest g service weather --no-spec
 })
 export class AppModule {}
 ```
+- yaml 파일 읽을 수 있도록 하기
+```bash
+# yaml 라이브러리 설치
+npm i js-yaml
+npm i -D @types/js-yaml
+```
+- 캐시 옵션 사용하기
+```typescript
+// app.module.ts
+@Module({
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: `${process.cwd()}/envs/${process.env.NODE_ENV}.env`,
+    load: [config],
+    // 캐시 사용 true
+    cache: true,
+    // 확장변수 사용 true
+    expandVariables: true,
+  }), WeatherModule,],
+  controllers: [AppController],
+  providers: [AppService],
+})
+```
+- 확장 변수 사용하기
+```dotenv
+SERVER_DOMAIN=localhost
+SERVER_PORT=3000
+SERVICE_URL="http://${SERVER_DOMAIN}:${SERVER_PORT}"
+```
+
+- main.ts에서 환경변수 사용
+```typescript
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {ConfigService} from "@nestjs/config";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  // ConfigService를 app.get()에 추가
+  const configService = app.get(ConfigService);
+  // configService 사용
+  await app.listen(configService.get("SERVER_PORT") as string);
+}
+bootstrap();
+
+```
 
 
 ---
