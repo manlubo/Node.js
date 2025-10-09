@@ -894,12 +894,75 @@ import {ConfigModule} from "@nestjs/config";
 })
 export class AppModule {}
 ```
+---
+## [chapter9]
+- 환경변수
+```text
+넥스트에서 환경변수 설정은 ConfigModule에서 할 수 있음.
 
+main.ts에서 bootstrap() 실행 시
 
+🔻
 
+1. ConfigModule.forRoot() 실행
+2. envFilePath 에서 환경변수 읽기 - .env(기본값), local.env, dev.env, prod.env
+3. 2의 결과와 process.env와 병합 - 시스템 환경변수
+4. 3의 결과와 load옵션 설정과 병합 - 커스텀 환경변수 .ts, .yaml 등
 
+🔻
 
+ConfigService 초기화 -> AModule, ZModule 의존성 주입
 
+```
+- ConfigModule.forRoot()
+
+| 옵션                            | 설명                                                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **`envFilePath`**             | `.env` 파일의 경로를 지정. 기본값은 프로젝트 루트(`.env`). 배열로 여러 파일 지정 가능.<br>예: `envFilePath: ['.env.development', '.env']` |
+| **`ignoreEnvFile`**           | `.env` 파일을 완전히 무시하고, 시스템 환경 변수만 사용하도록 설정.<br>기본값: `false`                                                   |
+| **`isGlobal`**                | `true`로 설정 시, 애플리케이션 전체에서 `ConfigModule`을 전역 모듈로 사용 가능 (imports에 따로 안 넣어도 됨).                               |
+| **`load`**                    | 외부 설정 파일이나 객체를 불러와서 환경 변수처럼 주입할 때 사용.<br>예: `load: [appConfig, dbConfig]`                                   |
+| **`cache`**                   | `ConfigService`의 환경 변수 결과를 캐싱할지 여부. 성능 최적화용.<br>기본값: `false`                                                |
+| **`expandVariables`**         | `.env` 내에서 `${VAR_NAME}` 형태의 참조 허용. (ex: `API_URL=${HOST}/api`)                                             |
+| **`validationSchemaOptions`** | `Joi` 스키마에 대한 세부 설정. (ex: `allowUnknown`, `stripUnknown`)                                                   |
+
+- nestjs-cli로 파일 생성하기
+```bash
+# 기능을 묶을 새 모듈 생성
+nest g module weather 
+# 컨트롤러 생성 (테스트 파일 없이)
+nest g controller weather --no-spec
+# 서비스 생성 (테스트 파일 없이) 
+nest g service weather --no-spec
+```
+- 환경별로 서버가 가동되도록 스크립트 수정하기
+```json
+//package.json
+
+"scripts": {
+  // local 할당
+  "start": "set NODE_ENV=local&& nest start",
+  // dev 할당
+  "start:dev": "set NODE_ENV=dev&& nest start --watch",
+  "start:debug": "nest start --debug --watch",
+  // prod 할당
+  "start:prod": "set NODE_ENV=prod&& node dist/main",
+}
+```
+- 환경별로 서버가 가동되도록 모듈 설정
+```typescript
+// app.module.ts
+@Module({
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+    // envs 폴더에, 실행시킨 스크립트에서 set한 NODE_ENV명.env로 실행.
+    envFilePath: `${process.cwd()}/envs/${process.env.NODE_ENV}.env`,
+  }), WeatherModule,],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
 
 
 ---
