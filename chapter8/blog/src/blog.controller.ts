@@ -1,14 +1,10 @@
-import { Controller, Param, Body, Delete, Get, Post, Put, ParseIntPipe } from "@nestjs/common";
+import { Controller, Param, Body, Delete, Get, Post, Put } from "@nestjs/common";
 import {BlogService} from "./blog.service";
 
 
 @Controller('blog')
 export class BlogController {
-  blogService: BlogService;
-
-  constructor() {
-    this.blogService = new BlogService();
-  }
+  constructor(private blogService: BlogService) {}
 
   @Get()
   getAllPosts() {
@@ -17,27 +13,28 @@ export class BlogController {
   }
 
   @Post()
-  createPost(@Body() postDto) {
+  async createPost(@Body() postDto) {
     console.log('게시글 작성')
-    this.blogService.createPost(postDto)
+    console.log(postDto);
+    await this.blogService.createPost(postDto)
     return "success";
   }
 
   @Get("/:id")
-  async getPost(@Param('id', ParseIntPipe) id: number) {
+  getPost(@Param('id') id: string) {
     console.log(`[id: ${id}] 게시글 하나 가져오기`);
     return this.blogService.getPost(id);
   }
 
   @Delete("/:id")
-  deletePost(@Param('id', ParseIntPipe) id: number) {
+  async deletePost(@Param('id') id: string) {
     console.log('게시글 삭제');
-    this.blogService.deletePost(id);
+    await this.blogService.deletePost(id);
     return "success";
   }
 
   @Put("/:id")
-  async updatePost(@Param('id', ParseIntPipe) id: number, @Body() postDto) {
+  async updatePost(@Param('id') id: string, @Body() postDto) {
     console.log(`게시글 업데이트`, id, postDto);
     return this.blogService.updatePost(id, postDto);
   }

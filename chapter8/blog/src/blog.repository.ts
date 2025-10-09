@@ -1,54 +1,53 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { PostDto } from "./blog.model";
-import {NotFoundError} from "rxjs";
+import {Injectable, NotFoundException} from "@nestjs/common";
+import {InjectModel} from "@nestjs/mongoose";
+import {Blog, BlogDocument} from "./blog.schema";
+import {Model} from "mongoose";
 
 export interface BlogRepository {
-  getAllPosts(): Promise<PostDto[]>;
+  getAllPosts(): Promise<Blog[]>;
   createPost(postDto: PostDto): void;
-  getPost(id: number): Promise<PostDto>;
-  deletePost(id: number): void;
-  updatePost(id: number, postDto: PostDto);
+  getPost(id: string): Promise<PostDto>;
+  deletePost(id: string): void;
+  updatePost(id: string, postDto: PostDto): void;
 }
 
-let idx:number = 1;
+@Injectable()
+export class BlogMongoRepository implements BlogRepository {
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-export class BlogFileRepository implements BlogRepository {
-  FILE_NAME = './src/blog.data.json';
-
-  async getAllPosts(): Promise<PostDto[]> {
-    const datas = await readFile(this.FILE_NAME, 'utf8');
-    const posts: PostDto[] = JSON.parse(datas);
-    return posts;
+  // 모든 게시글을 읽어오는 함수
+  async getAllPosts(): Promise<Blog[]> {
+    return this.blogModel.find();
   }
 
+  // 게시글 작성
   async createPost(postDto: PostDto) {
-    const posts = await this.getAllPosts();
-    const id = idx++;
-    const createPost = {...postDto, id, regDate: new Date()};
-    posts.push(createPost);
-    await writeFile(this.FILE_NAME, JSON.stringify(posts));
+    const createPost = {
+      ...postDto,
+      regDate: new Date(),
+      modDate: new Date(),
+    };
+    await this.blogModel.create(createPost);
   }
 
-  async getPost(id: number): Promise<PostDto> {
-    const posts = await this.getAllPosts();
-    const result = posts.find(post => post.id === id);
-    if(!result) {
-      throw new NotFoundError("해당 게시글을 찾지 못했습니다.");
+  // 하나의 게시글 읽기
+  async getPost(id: string): Promise<PostDto> {
+    const post = await this.blogModel.findById(id);
+    if (!post) {
+      throw new NotFoundException("게시글을 찾을 수 없습니다.");
     }
-    return result;
+    return post.toJSON() as PostDto;
   }
 
-  async deletePost(id: number) {
-    const posts = await this.getAllPosts();
-    const filteredPosts = posts.filter(post => post.id !== id);
-    await writeFile(this.FILE_NAME, JSON.stringify(filteredPosts));
+  // 하나의 게시글 삭제
+  async deletePost(id: string) {
+    await this.blogModel.findByIdAndDelete(id);
   }
 
-  async updatePost(id: number, postDto: PostDto) {
-    const posts = await this.getAllPosts();
-    const index = posts.findIndex(post => post.id === id);
-
-    posts[index] = { ...postDto, id, modDate: new Date() };
-    await writeFile(this.FILE_NAME, JSON.stringify(posts));
+  // 게시글 업데이트
+  async updatePost(id: string, postDto: PostDto) {
+    const updatePost = {...postDto, id, modDate: new Date() };
+    await this.blogModel.findByIdAndUpdate(id, updatePost);
   }
 }

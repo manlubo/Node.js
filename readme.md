@@ -733,11 +733,167 @@ npm i
 # 서버 실행 - 개발환경은 start:dev
 npm run start
 ```
+- 의존성 주입(스프링 bean같은..)
+```typescript
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class <관리되어질 클래스>
+
+// 생성자(constructor 부분에 private로 선언)
+export class <사용할 클래스>
+constructor(private blogRepository: BlogFileRepository) {}
 
 
+// app.module.ts
+@Module({
+  imports: [],
+  controllers: [BlogController],
+  // injectable에 의해 관리되는 클래스를 providers에 추가.
+  providers: [BlogService, BlogFileRepository], 
+})
+export class AppModule {}
 
 
+```
+- 몽고 DB연동(몽구스)
+```bash
+npm i @nestjs/mongoose mongoose
+```
+- 스키마 만들기(RDB의 엔티티와 비슷한 역할)
+```typescript
+import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
+import {Document} from "mongoose";
 
+
+// 블로그이면서, 도큐먼트인 타입 정의
+export type BlogDocument = Blog & Document ;
+
+// 스키마임을 나타냄
+@Schema({
+  // timestamps 옵션을 켜서 자동으로 regDate / modDate 관리
+  timestamps: { createdAt: 'regDate', updatedAt: 'modDate' },
+  // __v 필드 제거
+  versionKey: false,
+  toJSON: {
+    virtuals: true,
+    transform: (_, ret: any) => {
+      ret.id = ret._id.toString();
+      delete ret._id;
+    },
+  },
+})
+export class Blog {
+  // MongoDB는 id를 자동생성.
+
+  // 스키마의 프로퍼티임을 나타냄
+  @Prop()
+  title: string;
+
+  @Prop()
+  content: string;
+
+  @Prop()
+  name: string;
+
+  @Prop()
+  regDate: Date;
+
+  @Prop()
+  modDate: Date;
+}
+
+// 스키마 생성
+export const BlogSchema = SchemaFactory.createForClass(Blog);
+```
+- 몽고디비 사용하는 레포지토리 추가
+```typescript
+import { PostDto } from "./blog.model";
+import {Injectable, NotFoundException} from "@nestjs/common";
+import {InjectModel} from "@nestjs/mongoose";
+import {Blog, BlogDocument} from "./blog.schema";
+import {Model} from "mongoose";
+
+export interface BlogRepository {
+  getAllPosts(): Promise<Blog[]>;
+  createPost(postDto: PostDto): void;
+  getPost(id: string): Promise<PostDto>;
+  deletePost(id: string): void;
+  updatePost(id: string, postDto: PostDto): void;
+}
+
+@Injectable()
+export class BlogMongoRepository implements BlogRepository {
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+
+  // 모든 게시글을 읽어오는 함수
+  async getAllPosts(): Promise<Blog[]> {
+    return this.blogModel.find();
+  }
+
+  // 게시글 작성
+  async createPost(postDto: PostDto) {
+    const createPost = {
+      ...postDto,
+      regDate: new Date(),
+      modDate: new Date(),
+    };
+    await this.blogModel.create(createPost);
+  }
+
+  // 하나의 게시글 읽기
+  async getPost(id: string): Promise<PostDto> {
+    const post = await this.blogModel.findById(id);
+    if (!post) {
+      throw new NotFoundException("게시글을 찾을 수 없습니다.");
+    }
+    return post.toJSON() as PostDto;
+  }
+
+  // 하나의 게시글 삭제
+  async deletePost(id: string) {
+    await this.blogModel.findByIdAndDelete(id);
+  }
+
+  // 게시글 업데이트
+  async updatePost(id: string, postDto: PostDto) {
+    const updatePost = {...postDto, id, modDate: new Date() };
+    await this.blogModel.findByIdAndUpdate(id, updatePost);
+  }
+}
+```
+- .env 파일 사용(프로젝트 루트에 두기)
+```bash
+npm i @nestjs/config 
+```
+- 모듈 수정
+```typescript
+import { Module } from '@nestjs/common';
+import { BlogController } from './blog.controller';
+import { BlogService } from './blog.service';
+import {BlogMongoRepository} from "./blog.repository";
+import {MongooseModule} from "@nestjs/mongoose";
+import {Blog, BlogSchema} from "./blog.schema";
+import {ConfigModule} from "@nestjs/config";
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    })
+    ,
+    MongooseModule.forRoot(
+      `${process.env.MONGODB_URI}`, {
+        dbName: 'blog'
+      }
+    ),
+    MongooseModule.forFeature([{name: Blog.name, schema: BlogSchema}]),
+  ],
+  controllers: [BlogController],
+  providers: [BlogService, BlogMongoRepository],
+})
+export class AppModule {}
+```
 
 
 
