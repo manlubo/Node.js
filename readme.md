@@ -1010,6 +1010,175 @@ async function bootstrap() {
 bootstrap();
 
 ```
+---
+## [chapter10]
+- SQLite 데이터베이스 설정(파일이 데이터베이스, 가벼움)
+```bash
+# sqlite 설치
+npm i sqlite3
+# typeorm 설치(객체 <> 테이블을 자동으로 연결시켜줌)
+npm i typeorm
+# nest에서 typeorm을 편하게 사용하기 위해 설치
+npm i @nestjs/typeorm
+```
+- app.module.ts 설정(tset... 오타... ㅠ)
+```typescript
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { UserModule } from './user/user.module';
+import {TypeOrmModule} from "@nestjs/typeorm";
+
+@Module({
+  imports: [
+    // TypeORM 설정 등록 (SQLite 데이터베이스 연결)
+    TypeOrmModule.forRoot({
+      // 사용할 데이터베이스 종류
+      type: 'sqlite',
+      // 생성될 DB 파일 이름
+      database: 'nest-auth-tset.sqlite',
+      // 엔티티(Entity) 클래스들을 등록할 배열
+      entities: [],
+      // 엔티티 구조 변경 시 DB 자동 동기화 (개발용 옵션) - 스프링jpa의 ddl update와 같은 개념
+      synchronize: true,
+      // SQL 실행 로그를 콘솔에 출력 (디버깅용)
+      logging: true,                    
+    }),
+    UserModule
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+- 엔티티 만들기
+```typescript
+// user.entity.ts
+import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+
+@Entity()
+export class User {
+  // 자동증가(생성할때 없음)
+  @PrimaryGeneratedColumn()
+  id?: number;
+
+  // 이메일은 유니크한 값
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  password: string;
+
+  @Column()
+  username: string;
+
+  @Column({type: "datetime", default: () => "CURRENT_TIMESTAMP"})
+  regDate: Date = new Date();
+}
+```
+- 서비스 만들기
+```typescript
+// user.service.ts
+import { Injectable } from '@nestjs/common';
+import {InjectRepository} from "@nestjs/typeorm"; // 레포지토리 주입 데코레이터
+import {Repository} from "typeorm"; // 레포지토리 임포트
+import {User} from "./user.entity";
+
+@Injectable()
+export class UserService {
+  // 레포지토리 주입
+  constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
+
+  createUser(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
+
+  async getUser(email: string) {
+    const result = await this.userRepository.findOne({
+      where: { email }
+    })
+    return result;
+  }
+
+  async updateUser(email: string, _user){
+    const user:User = await this.getUser(email) as User;
+    console.log(_user);
+    user.username = _user.username;
+    user.password = _user.password;
+    console.log(user);
+    await this.userRepository.save(user);
+  }
+
+  deleteUser(email: string) {
+    return this.userRepository.delete({email});
+  }
+}
+
+```
+- 컨트롤러 만들기
+```typescript
+// user.controller.ts
+import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
+import {UserService} from "./user.service";
+import {User} from "./user.entity";
+
+@Controller('user')
+export class UserController {
+  // 유저 서비스 주입
+  constructor(private userService: UserService) {}
+
+  @Post('/create')
+  createUser(@Body() user: User) {
+    return this.userService.createUser(user);
+  }
+
+  @Get('/getUser/:email')
+  async getUser(@Param('email') email: string) {
+    const user = await this.userService.getUser(email);
+    console.log(user);
+    return user;
+  }
+
+  @Put('/update/:email')
+  updateUser(@Param('email') email: string, @Body() user: User) {
+    console.log(user);
+    return this.userService.updateUser(email, user);
+  }
+
+  @Delete('/delete/:email')
+  deleteUser(@Param('email') email: string) {
+    return this.userService.deleteUser(email);
+  }
+}
+
+```
+- user모듈에 등록
+```typescript
+// user.module.ts
+import { Module } from '@nestjs/common';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {User} from "./user.entity";
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User])],
+  controllers: [UserController],
+  providers: [UserService]
+})
+export class UserModule {}
+```
+- app.module.ts에 추가
+```typescript
+// entities에 만든 엔티티 추가.
+entities: [User],
+```
+
+
+
+
+
+
 
 
 ---
