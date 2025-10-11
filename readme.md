@@ -1173,6 +1173,230 @@ export class UserModule {}
 // entities에 만든 엔티티 추가.
 entities: [User],
 ```
+- 파이프로 유효성 검증하기
+```bash
+# 유효성 검사 해주는 라이브러리 설치
+npm i class-validator
+# plain object <> class instance 변환 해주는 라이브러리 설치
+npm i class-transformer 
+```
+```typescript
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {ValidationPipe} from "@nestjs/common";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  // 전역 파이프설정에 ValidationPipe 객체 생성해 넣기
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+```
+- class-validator의 데코레이터
+
+| 데코레이터                         | 설명                                        |
+| ----------------------------- | ----------------------------------------- |
+| `@IsString()`                 | 값이 문자열인지 검사                               |
+| `@IsNumber()`                 | 값이 숫자인지 검사 (기본적으로 `number` 타입이어야 함)       |
+| `@IsInt()`                    | 정수인지 검사                                   |
+| `@IsBoolean()`                | true / false 인지 검사                        |
+| `@IsArray()`                  | 배열인지 검사                                   |
+| `@IsDate()`                   | Date 객체인지 검사                              |
+| `@IsOptional()`               | 값이 없어도(=null, undefined) 검증 에러 발생하지 않음    |
+| `@IsEmail()`                  | 이메일 형식인지 검사                               |
+| `@IsUrl()`                    | URL 형식인지 검사                               |
+| `@IsUUID()`                   | UUID 형식인지 검사 (v1~v4 지원)                   |
+| `@IsEnum(EnumType)`           | 특정 enum 타입 안에 값이 포함되어 있는지 검사              |
+| `@IsNotEmpty()`               | 비어 있지 않은 값인지 검사 (문자열 길이 > 0, 배열 길이 > 0 등) |
+| `@IsEmpty()`                  | 값이 비어 있어야 함                               |
+| `@Length(min, max)`           | 문자열 길이가 특정 범위 내인지 검사                      |
+| `@MinLength(n)`               | 문자열 길이가 n 이상인지 검사                         |
+| `@MaxLength(n)`               | 문자열 길이가 n 이하인지 검사                         |
+| `@Min(n)`                     | 숫자가 n 이상인지 검사                             |
+| `@Max(n)`                     | 숫자가 n 이하인지 검사                             |
+| `@Matches(regex)`             | 특정 정규식 패턴과 일치하는지 검사                       |
+| `@Contains(substring)`        | 문자열에 특정 문자열이 포함되어 있는지 검사                  |
+| `@Equals(value)`              | 특정 값과 완전히 같은지 검사                          |
+| `@NotEquals(value)`           | 특정 값과 달라야 함                               |
+| `@ArrayMinSize(n)`            | 배열의 최소 길이가 n 이상인지 검사                      |
+| `@ArrayMaxSize(n)`            | 배열의 최대 길이가 n 이하인지 검사                      |
+| `@ArrayNotEmpty()`            | 배열이 비어 있지 않은지 검사                          |
+| `@ValidateNested()`           | DTO 안에 또 다른 객체(DTO)가 있을 때 내부까지 검증 수행      |
+| `@Type(() => Class)`          | `class-transformer`와 함께 사용, 내부 객체의 타입 지정  |
+| `@IsPhoneNumber(regionCode?)` | 전화번호 형식인지 검사 (`KR`, `US` 등 지역 코드 지정 가능)   |
+| `@IsPositive()`               | 양수인지 검사                                   |
+| `@IsNegative()`               | 음수인지 검사                                   |
+| `@IsDefined()`                | 값이 `undefined`가 아니어야 함                    |
+
+- 인증 모듈 설정
+```typescript
+// user.module.ts
+import { Module } from '@nestjs/common';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {User} from "./user.entity";
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User])],
+  controllers: [UserController],
+  providers: [UserService],
+  // UserService를 외부 모듈에서 사용하도록 설정
+  exports: [UserService],
+})
+export class UserModule {}
+
+
+// auth.module.ts
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import {UserModule} from "../user/user.module";
+
+@Module({
+  // 유저 모듈을 임포트
+  imports: [UserModule],
+  providers: [AuthService],
+  controllers: [AuthController]
+})
+export class AuthModule {}
+```
+- 회원가입 메서드 만들기
+```bash
+# 암호화 라이브러리
+npm i bcrypt
+# 타입스크립트에 타입을 제공
+npm i -D @types/bcrypt 
+```
+- 가드를 사용해 인증 여부 확인하기
+```bash
+# 헤더에서 쿠키를 읽기위해 사용
+npm i cookie-parser 
+```
+```typescript
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {ValidationPipe} from "@nestjs/common";
+import cookieParser from 'cookie-parser';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  // 쿠키 파서 추가.
+  app.use(cookieParser());
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+
+```
+```typescript
+// auth.guard.ts
+import {CanActivate, Injectable} from "@nestjs/common";
+import {AuthService} from "./auth.service";
+
+
+@Injectable()
+export class LoginGuard implements CanActivate { // CanActivate 인터페이스 구현
+  constructor(private authService: AuthService) {}
+
+  // CanActivate 인터페이스의 메서드
+  async canActivate(context: any): Promise<boolean> {
+    // 리퀘스트 정보 가져옴
+    const request = context.switchToHttp().getRequest();
+
+    // 쿠키가 있으면 인증된 것
+    if (request.cookies['login']) {
+      return true;
+    }
+
+    // 쿠키가 없으면 request의 body 정보 확인
+    if(!request.body.email || !request.body.password) {
+      return false;
+    }
+
+    const user = await this.authService.validateUser(
+      request.body.email,
+      request.body.password,
+    );
+
+    if (!user) {
+      return false;
+    }
+
+    request.user = user;
+    return true;
+  }
+}
+```
+- LoginGuard 테스트 로직을 controller에 추가
+```typescript
+// auth.controller.ts
+
+// LoginGuard 사용
+@UseGuards(LoginGuard)
+@Post('login2')
+async login2(@Request() req, @Response() res) {
+  // 쿠키 정보는 없지만 request에 user 정보가 있다면 응답값에 쿠키 정보 추가
+  if(!req.cookies['login'] && req.user){
+    // 응답에 쿠키 정보 추가
+    res.cookie('login', JSON.stringify(req.user), {
+      httpOnly: true,
+      maxAge: 1000 * 10,
+    });
+  }
+  return res.send({message: 'Login2 success'});
+}
+
+// 로그인을 한 때만 실행되는 메서드
+@UseGuards(LoginGuard)
+@Get('test-guard')
+testGuard() {
+  return '로그인 이후에만 이 글이 보입니다.';
+}
+```
+- 패스포트와 세션 사용한 인증
+```bash
+# 패스포트 라이브러리 설치
+npm i @nestjs/passport passport passport-local express-session
+# 타입정보 라이브러리 설치
+npm i -D @types/passport-local @types/express-session 
+```
+```typescript
+// main.ts에 세션, 패스포트 추가
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {ValidationPipe} from "@nestjs/common";
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import passport from "passport";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  app.use(cookieParser());
+  app.use(
+    session({
+      // 세션 암호화에 사용하는 키
+      secret: 'very-important-secret',
+      // 세션을 항상 저장할 지 여부
+      resave: false,
+      // 세션이 저장되기 전 초기화 하지 않은 상태로 세션을 미리 만들어 저장
+      saveUninitialized: false,
+      // 쿠키 유효시간 1시간
+      cookie: {maxAge: 3600000}
+    }),
+  )
+  // passport 초기화 및 세션 저장소 초기화
+  app.use(passport.initialize());
+  app.use(passport.session());
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+```
+
 
 
 

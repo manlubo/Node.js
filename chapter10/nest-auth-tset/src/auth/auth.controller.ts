@@ -37,7 +37,7 @@ export class AuthController {
       // 응답에 쿠키 정보 추가
       res.cookie('login', JSON.stringify(req.user), {
         httpOnly: true,
-        maxAge: 1000 * 10,
+        maxAge: 1000 * 60 * 60 * 24,
       });
     }
     return res.send({message: 'Login2 success'});
